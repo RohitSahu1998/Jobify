@@ -45,6 +45,11 @@ services:
         value: 587
       - key: TESSERACT_PATH
         value: /usr/bin/tesseract
+      - key: ALLOWED_ORIGINS
+        fromService:
+          type: web
+          name: jobify-frontend
+          envVarKey: RENDER_EXTERNAL_URL
 
   # Frontend
   - type: web
