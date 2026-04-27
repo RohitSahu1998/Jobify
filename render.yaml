@@ -48,7 +48,6 @@ services:
   - type: web
     name: jobify-frontend
     env: static
-    plan: free
     branch: main
     buildCommand: "cd frontend && npm install && npm run build"
     staticPublishPath: frontend/dist
