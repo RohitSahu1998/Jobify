@@ -42,12 +42,9 @@ services:
       - key: TESSERACT_PATH
         value: /usr/bin/tesseract
       - key: ALLOWED_ORIGINS
-        fromService:
-          type: web
-          name: jobify-frontend
-          envVarKey: RENDER_EXTERNAL_URL
+        sync: false
 
-  # Frontend
+  # Frontend (Static Site)
   - type: web
     name: jobify-frontend
     env: static
@@ -62,7 +59,4 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_URL
-        fromService:
-          type: web
-          name: jobify-backend
-          envVarKey: RENDER_EXTERNAL_URL
+        sync: false
