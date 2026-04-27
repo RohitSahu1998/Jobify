@@ -1,7 +1,13 @@
 import axios from 'axios'
 
+// In production (Render), VITE_API_URL is the backend's external URL.
+// In local dev, Vite proxy handles /api → localhost:8000, so we use '/api'.
+const BASE_URL = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : '/api'
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: BASE_URL,
 })
 
 // Attach JWT token to every request

@@ -1,15 +1,11 @@
-services:
-  # PostgreSQL Database
-  - type: pserv
-    name: jobify-db
-    env: docker
+databases:
+  - name: jobify-db
+    databaseName: jobify_db
+    user: jobify_user
     plan: free
     region: oregon
-    databases:
-      - name: jobify_db
-        databaseName: jobify_db
-        user: jobify_user
 
+services:
   # Backend API
   - type: web
     name: jobify-backend
@@ -18,7 +14,7 @@ services:
     plan: free
     branch: main
     buildCommand: "cd backend && pip install -r requirements.txt"
-    startCommand: "cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    startCommand: "cd backend && python init_db.py && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
     healthCheckPath: /
     envVars:
       - key: DATABASE_URL
