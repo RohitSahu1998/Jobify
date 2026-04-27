@@ -1,0 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #0A0A0A;
+  color: #ffffff;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.glow-green {
+  box-shadow: 0 0 40px rgba(0, 200, 83, 0.25), 0 0 80px rgba(0, 200, 83, 0.1);
+}
+
+.glow-green-sm {
+  box-shadow: 0 0 16px rgba(0, 200, 83, 0.3);
+}
+
+.gradient-border {
+  background: linear-gradient(#111111, #111111) padding-box,
+              linear-gradient(135deg, rgba(0,200,83,0.5), rgba(0,200,83,0.05)) border-box;
+  border: 1px solid transparent;
+}
+
+.gradient-border:hover {
+  background: linear-gradient(#111111, #111111) padding-box,
+              linear-gradient(135deg, rgba(0,200,83,0.8), rgba(0,200,83,0.1)) border-box;
+}

@@ -1,0 +1,96 @@
+# Python
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Environment Variables (NEVER COMMIT!)
+.env
+.env.local
+.env.*.local
+backend/.env
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs
+dist/
+build/
+*.log
+
+# Uploads (User files - use cloud storage in production)
+uploads/
+backend/uploads/
+*.pdf
+*.jpg
+*.jpeg
+*.png
+*.gif
+
+# Database (Local only)
+*.db
+*.sqlite
+*.sqlite3
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+tests/
+
+# Local utility scripts (not needed on server)
+check_prerequisites.py
+check_db.py
+generate_secret_key.py
+setup_and_run.bat
+start_backend.bat
+start_frontend.bat
+
+# Documentation (optional - keep README.md)
+SETUP_GUIDE.md
+QUICK_START.md
+CHANGES.md
+FIXES_SUMMARY.md
+COMPLETED_WORK.txt
+START_HERE.md
+RUN_ME_FIRST.txt
+FREE_HOSTING.txt
+DEPLOYMENT_FILES.md
+
+# Misc
+.cache/
+temp/
+tmp/
