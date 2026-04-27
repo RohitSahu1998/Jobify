@@ -11,6 +11,7 @@ services:
     name: jobify-backend
     env: python
     region: oregon
+    pythonVersion: 3.11.9
     plan: free
     branch: main
     buildCommand: "cd backend && pip install -r requirements.txt"
