@@ -11,13 +11,14 @@ services:
     name: jobify-backend
     env: python
     region: oregon
-    pythonVersion: 3.11.9
     plan: free
     branch: main
     buildCommand: "cd backend && pip install -r requirements.txt"
     startCommand: "cd backend && python init_db.py && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
     healthCheckPath: /
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
       - key: DATABASE_URL
         fromDatabase:
           name: jobify-db
