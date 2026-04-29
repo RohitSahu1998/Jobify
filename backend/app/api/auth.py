@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from app.core.database import get_db
+from app.core.config import settings
 from app.core.security import hash_password, verify_password, create_access_token
 from app.models.user import User, UserRole
 from app.services.otp_service import generate_otp, otp_expiry, send_otp_email
@@ -26,7 +27,7 @@ class LoginRequest(BaseModel):
     password: str
 
 @router.post("/register", status_code=201)
-async def register(data: RegisterRequest, db: Session = Depends(get_db)):
+async def register(data: RegisterRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     email_lower = data.email.lower()
     if db.query(User).filter(User.email == email_lower).first():
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -44,20 +45,19 @@ async def register(data: RegisterRequest, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(user)
 
-    try:
-        await send_otp_email(email_lower, otp)
-        email_sent = True
-    except Exception as e:
-        email_sent = False
-        print(f"[EMAIL ERROR] {type(e).__name__}: {e}")
+    # Send email in background to prevent slow API response
+    background_tasks.add_task(send_otp_email, email_lower, otp)
 
     response = {
         "message": "Registration successful. Check your email for the OTP.",
         "user_id": str(user.id),
         "role": user.role,
     }
-    if not email_sent:
-        response["dev_otp"] = otp  # fallback if email fails
+    
+    # Fallback for local testing when email is not configured
+    if not settings.MAIL_USERNAME:
+        response["dev_otp"] = otp
+        
     return response
 
 @router.post("/verify-otp")
@@ -81,7 +81,7 @@ def verify_otp(data: VerifyOTPRequest, db: Session = Depends(get_db)):
     return {"message": "Email verified successfully. You can now login."}
 
 @router.post("/resend-otp")
-async def resend_otp(data: ResendOTPRequest, db: Session = Depends(get_db)):
+async def resend_otp(data: ResendOTPRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     email_lower = data.email.lower()
     user = db.query(User).filter(User.email == email_lower).first()
     if not user:
@@ -94,13 +94,14 @@ async def resend_otp(data: ResendOTPRequest, db: Session = Depends(get_db)):
     user.otp_expires_at = otp_expiry()
     db.commit()
 
-    try:
-        await send_otp_email(email_lower, otp)
-        return {"message": "New OTP sent to your email."}
-    except Exception as e:
-        print(f"[EMAIL ERROR] {type(e).__name__}: {e}")
-        # Return success with fallback dev_otp if email fails
-        return {"message": "Failed to send email. Check fallback OTP.", "dev_otp": otp}
+    # Send email in background to prevent slow API response
+    background_tasks.add_task(send_otp_email, email_lower, otp)
+
+    response = {"message": "New OTP sent to your email."}
+    if not settings.MAIL_USERNAME:
+        response["dev_otp"] = otp
+
+    return response
 
 @router.post("/login")
 def login(data: LoginRequest, db: Session = Depends(get_db)):
