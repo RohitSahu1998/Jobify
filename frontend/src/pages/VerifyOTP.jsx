@@ -6,8 +6,7 @@ import Logo from '../components/Logo'
 export default function VerifyOTP() {
   const location = useLocation()
   const email = location.state?.email || ''
-  const devOtp = location.state?.dev_otp || ''
-
+  const [devOtp, setDevOtp] = useState(location.state?.dev_otp || '')
   const [otp, setOtp] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -31,9 +30,12 @@ export default function VerifyOTP() {
 
   const handleResend = async () => {
     try {
-      await api.post('/auth/resend-otp', { email })
+      const res = await api.post('/auth/resend-otp', { email })
       setError('')
-      setSuccess('New OTP sent!')
+      setSuccess(res.data.message || 'New OTP sent!')
+      if (res.data.dev_otp) {
+        setDevOtp(res.data.dev_otp)
+      }
     } catch (err) {
       setError('Failed to resend OTP')
     }

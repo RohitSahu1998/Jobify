@@ -27,12 +27,13 @@ class LoginRequest(BaseModel):
 
 @router.post("/register", status_code=201)
 async def register(data: RegisterRequest, db: Session = Depends(get_db)):
-    if db.query(User).filter(User.email == data.email).first():
+    email_lower = data.email.lower()
+    if db.query(User).filter(User.email == email_lower).first():
         raise HTTPException(status_code=400, detail="Email already registered")
 
     otp = generate_otp()
     user = User(
-        email=data.email,
+        email=email_lower,
         hashed_password=hash_password(data.password),
         role=data.role,
         is_verified=False,
@@ -44,7 +45,7 @@ async def register(data: RegisterRequest, db: Session = Depends(get_db)):
     db.refresh(user)
 
     try:
-        await send_otp_email(data.email, otp)
+        await send_otp_email(email_lower, otp)
         email_sent = True
     except Exception as e:
         email_sent = False
@@ -61,7 +62,8 @@ async def register(data: RegisterRequest, db: Session = Depends(get_db)):
 
 @router.post("/verify-otp")
 def verify_otp(data: VerifyOTPRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == data.email).first()
+    email_lower = data.email.lower()
+    user = db.query(User).filter(User.email == email_lower).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     if user.is_verified:
@@ -80,7 +82,8 @@ def verify_otp(data: VerifyOTPRequest, db: Session = Depends(get_db)):
 
 @router.post("/resend-otp")
 async def resend_otp(data: ResendOTPRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == data.email).first()
+    email_lower = data.email.lower()
+    user = db.query(User).filter(User.email == email_lower).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     if user.is_verified:
@@ -91,12 +94,18 @@ async def resend_otp(data: ResendOTPRequest, db: Session = Depends(get_db)):
     user.otp_expires_at = otp_expiry()
     db.commit()
 
-    await send_otp_email(data.email, otp)
-    return {"message": "New OTP sent to your email."}
+    try:
+        await send_otp_email(email_lower, otp)
+        return {"message": "New OTP sent to your email."}
+    except Exception as e:
+        print(f"[EMAIL ERROR] {type(e).__name__}: {e}")
+        # Return success with fallback dev_otp if email fails
+        return {"message": "Failed to send email. Check fallback OTP.", "dev_otp": otp}
 
 @router.post("/login")
 def login(data: LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == data.email).first()
+    email_lower = data.email.lower()
+    user = db.query(User).filter(User.email == email_lower).first()
     if not user or not verify_password(data.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     if not user.is_verified:
