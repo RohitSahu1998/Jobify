@@ -53,10 +53,6 @@ async def register(data: RegisterRequest, background_tasks: BackgroundTasks, db:
         "user_id": str(user.id),
         "role": user.role,
     }
-    
-    # Fallback for local testing when email is not configured
-    if not settings.MAIL_USERNAME:
-        response["dev_otp"] = otp
         
     return response
 
@@ -97,11 +93,7 @@ async def resend_otp(data: ResendOTPRequest, background_tasks: BackgroundTasks, 
     # Send email in background to prevent slow API response
     background_tasks.add_task(send_otp_email, email_lower, otp)
 
-    response = {"message": "New OTP sent to your email."}
-    if not settings.MAIL_USERNAME:
-        response["dev_otp"] = otp
-
-    return response
+    return {"message": "New OTP sent to your email."}
 
 @router.post("/login")
 def login(data: LoginRequest, db: Session = Depends(get_db)):

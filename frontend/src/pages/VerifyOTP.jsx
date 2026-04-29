@@ -6,7 +6,6 @@ import Logo from '../components/Logo'
 export default function VerifyOTP() {
   const location = useLocation()
   const email = location.state?.email || ''
-  const [devOtp, setDevOtp] = useState(location.state?.dev_otp || '')
   const [otp, setOtp] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -33,9 +32,6 @@ export default function VerifyOTP() {
       const res = await api.post('/auth/resend-otp', { email })
       setError('')
       setSuccess(res.data.message || 'New OTP sent!')
-      if (res.data.dev_otp) {
-        setDevOtp(res.data.dev_otp)
-      }
     } catch (err) {
       setError('Failed to resend OTP')
     }
@@ -52,14 +48,6 @@ export default function VerifyOTP() {
           <p className="text-sm text-gray-400 mb-6 text-center">
             OTP sent to <span className="text-white font-medium">{email}</span>
           </p>
-
-          {/* Dev mode OTP hint */}
-          {devOtp && (
-            <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg px-4 py-3 mb-5 text-center">
-              <p className="text-xs text-yellow-400 mb-1">Dev Mode — Your OTP:</p>
-              <p className="text-2xl font-black text-yellow-300 tracking-widest">{devOtp}</p>
-            </div>
-          )}
 
           {error && (
             <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-3 rounded-lg mb-4">
